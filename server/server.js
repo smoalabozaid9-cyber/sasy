@@ -7,7 +7,11 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+// Middleware
+app.use(cors({
+    origin: '*', // For debugging, allow all. In production, set this to the Vercel Client URL
+    credentials: true
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 

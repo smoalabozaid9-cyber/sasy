@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+const baseURL = import.meta.env.VITE_API_URL
+    ? (import.meta.env.VITE_API_URL.endsWith('/api') ? import.meta.env.VITE_API_URL : `${import.meta.env.VITE_API_URL}/api`)
+    : '/api';
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api', // Use env var in Prod, or proxy in Dev
+    baseURL,
 });
 
 // Add a request interceptor to attach the token
