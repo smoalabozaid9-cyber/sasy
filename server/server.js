@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes Placeholder
 app.get('/', (req, res) => {
-    res.send('LegalTech SaaS API is running');
+    res.status(200).send('LegalTech SaaS API is running');
 });
 
 // Import Routes
