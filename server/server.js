@@ -16,22 +16,46 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Database Connection
-let dbError = null;
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => {
-        console.error('MongoDB Connection Error:', err);
-        dbError = err.message;
-        // process.exit(1); // Don't exit on Vercel, let us see the error
-    });
+let cachedPromise = null;
+
+const connectDB = async () => {
+    if (mongoose.connection.readyState === 1) {
+        return mongoose.connection;
+    }
+
+    if (!cachedPromise) {
+        cachedPromise = mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000 // Fail fast if IP is blocked
+        }).catch(err => {
+            console.error('MongoDB Connection Error:', err);
+            throw err;
+        });
+    }
+
+    return cachedPromise;
+};
+
+// Connect immediately on cold start (optional, but good)
+connectDB().catch(err => console.error('Init Auth Error', err));
+
 
 // Routes Placeholder
-app.get('/', (req, res) => {
-    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+app.get('/', async (req, res) => {
+    let dbStatus = 'Disconnected';
+    let dbError = null;
+
+    try {
+        await connectDB();
+        dbStatus = 'Connected';
+    } catch (err) {
+        dbStatus = 'Error';
+        dbError = err.message;
+    }
+
     res.status(200).json({
         message: 'LegalTech SaaS API is running',
         dbStatus: dbStatus,
-        dbError: dbError, // Show the error if any
+        dbError: dbError,
         envCheck: process.env.MONGO_URI ? 'MONGO_URI is set' : 'MONGO_URI is MISSING',
         timestamp: new Date().toISOString()
     });
