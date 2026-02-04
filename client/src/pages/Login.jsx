@@ -23,7 +23,10 @@ const Login = () => {
                 navigate('/client');
             }
         } else {
-            setError(result.message);
+            let msg = result.message;
+            if (msg === 'Login failed' && !email.includes('@')) msg = 'تأكد من كتابة الإيميل بشكل صحيح';
+            if (msg.includes('Network Error')) msg = 'خطأ في الاتصال بالسيرفر. تأكد من تشغيل السيرفر ومن المتغيرات البيئية.';
+            setError(msg);
         }
     };
 
