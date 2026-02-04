@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext';
 
 const Cases = () => {
     const { user } = useAuth();
+    const [cases, setCases] = useState([]);
+    const [lawyers, setLawyers] = useState([]);
+    const [showModal, setShowModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
