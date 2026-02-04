@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('userInfo', JSON.stringify(data));
             setUser(data);
             // Header is handled by interceptor in api/axios.js
-            return { success: true };
+            return { success: true, data: data };
         } catch (error) {
             console.error(error);
             return { success: false, message: error.response?.data?.message || 'Login failed' };
