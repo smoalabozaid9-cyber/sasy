@@ -25,7 +25,12 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes Placeholder
 app.get('/', (req, res) => {
-    res.status(200).send('LegalTech SaaS API is running');
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    res.status(200).json({
+        message: 'LegalTech SaaS API is running',
+        dbStatus: dbStatus,
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Import Routes
