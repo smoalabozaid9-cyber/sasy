@@ -8,15 +8,20 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [casesRes, lawyersRes] = await Promise.all([
+                const [casesRes, lawyersRes, sessionsRes] = await Promise.all([
                     api.get('/cases'),
-                    api.get('/lawyers')
+                    api.get('/lawyers'),
+                    api.get('/sessions')
                 ]);
+
+                // Filter for upcoming sessions (date >= now)
+                const now = new Date();
+                const upcoming = sessionsRes.data.filter(s => new Date(s.sessionDate) >= now).length;
 
                 setStats({
                     cases: casesRes.data.length,
                     lawyers: lawyersRes.data.length,
-                    sessions: 0 // Placeholder until sessions endpoint is more accessible or computed
+                    sessions: upcoming
                 });
             } catch (error) {
                 console.error("Error fetching stats", error);
@@ -57,7 +62,7 @@ const AdminDashboard = () => {
                     </div>
                     <div>
                         <p style={{ color: '#64748b', fontSize: '0.9rem' }}>الجلسات القادمة</p>
-                        <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>--</p>
+                        <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{stats.sessions}</p>
                     </div>
                 </div>
             </div>

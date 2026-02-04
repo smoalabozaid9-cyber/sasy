@@ -4,6 +4,32 @@ const Session = require('../models/Session');
 const Case = require('../models/Case');
 const { protect } = require('../middleware/auth');
 
+// @route   GET /api/sessions
+// @desc    Get all sessions (Admin sees all, Lawyer sees related to their cases)
+// @access  Private
+router.get('/', protect, async (req, res) => {
+    try {
+        let sessions;
+        if (req.user.role === 'admin') {
+            sessions = await Session.find().populate({
+                path: 'caseId',
+                select: 'caseNumber clientName'
+            }).sort({ sessionDate: -1 });
+        } else {
+            // Get cases assigned to this lawyer
+            const cases = await Case.find({ assignedLawyer: req.user._id });
+            const caseIds = cases.map(c => c._id);
+            sessions = await Session.find({ caseId: { $in: caseIds } }).populate({
+                path: 'caseId',
+                select: 'caseNumber clientName'
+            }).sort({ sessionDate: -1 });
+        }
+        res.json(sessions);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // @route   POST /api/sessions
 // @desc    Add a session to a case
 // @access  Private
