@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { Users, Briefcase, Calendar, AlertCircle, Download, FileSpreadsheet } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { Users, Briefcase, Calendar, AlertCircle } from 'lucide-react';
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({ cases: 0, lawyers: 0, sessions: 0 });
@@ -31,40 +30,6 @@ const AdminDashboard = () => {
 
         fetchData();
     }, []);
-
-    const handleExportExcel = async () => {
-        try {
-            const { data: cases } = await api.get('/cases');
-
-            // Format data for Excel
-            const excelData = cases.map(c => ({
-                'رقم القضية': c.caseNumber,
-                'اسم الموكل': c.clientName,
-                'نوع القضية': c.caseType,
-                'المحكمة': c.court,
-                'الحالة': c.status === 'ongoing' ? 'جارية' : c.status === 'new' ? 'جديدة' : 'منتهية',
-                'المحامي المسؤول': c.assignedLawyer?.name || 'غير معين',
-                'تاريخ الإنشاء': new Date(c.createdAt).toLocaleDateString('ar-EG'),
-                'ملاحظات': c.notes || ''
-            }));
-
-            // Create worksheet
-            const ws = XLSX.utils.json_to_sheet(excelData);
-
-            // Set Right-to-Left (RTL) for Arabic
-            ws['!dir'] = 'rtl';
-
-            // Create workbook and append worksheet
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "القضايا");
-
-            // Save file
-            XLSX.writeFile(wb, `تقرير_القضايا_${new Date().toLocaleDateString('ar-EG')}.xlsx`);
-        } catch (error) {
-            console.error("Export Error:", error);
-            alert("حدث خطأ أثناء تصدير البيانات");
-        }
-    };
 
     return (
         <div className="main-content">
@@ -102,30 +67,12 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                <div className="card">
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <AlertCircle size={20} color="#e11d48" />
-                        تنبيهات النظام
-                    </h3>
-                    <p style={{ color: '#64748b' }}>لا توجد تنبيهات جديدة.</p>
-                </div>
-
-                <div className="card">
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <FileSpreadsheet size={20} color="var(--primary-color)" />
-                        تقارير النظام
-                    </h3>
-                    <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>يمكنك تحميل كافة كشوفات القضايا والبيانات في ملف Excel واحد.</p>
-                    <button
-                        onClick={handleExportExcel}
-                        className="btn btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: 'fit-content' }}
-                    >
-                        <Download size={18} />
-                        تنزيل كشف القضايا (Excel)
-                    </button>
-                </div>
+            <div className="card">
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <AlertCircle size={20} color="#e11d48" />
+                    تنبيهات النظام
+                </h3>
+                <p style={{ color: '#64748b' }}>لا توجد تنبيهات جديدة.</p>
             </div>
         </div>
     );

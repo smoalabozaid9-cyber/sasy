@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Key } from 'lucide-react';
 
 const Lawyers = () => {
     const [lawyers, setLawyers] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [selectedLawyer, setSelectedLawyer] = useState(null);
+    const [newPassword, setNewPassword] = useState('');
 
     useEffect(() => {
         fetchLawyers();
@@ -28,6 +30,19 @@ const Lawyers = () => {
             } catch (error) {
                 console.error(error);
             }
+        }
+    };
+
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put(`/lawyers/${selectedLawyer._id}/password`, { password: newPassword });
+            setShowPasswordModal(false);
+            setNewPassword('');
+            setSelectedLawyer(null);
+            alert('تم تحديث كلمة المرور بنجاح');
+        } catch (error) {
+            alert('خطأ في تحديث كلمة المرور');
         }
     };
 
@@ -59,6 +74,7 @@ const Lawyers = () => {
                         <tr>
                             <th>الاسم</th>
                             <th>البريد الإلكتروني</th>
+                            <th>كلمة المرور</th>
                             <th>تاريخ الانضمام</th>
                             <th>إجراءات</th>
                         </tr>
@@ -68,11 +84,21 @@ const Lawyers = () => {
                             <tr key={lawyer._id}>
                                 <td>{lawyer.name}</td>
                                 <td>{lawyer.email}</td>
+                                <td style={{ fontSize: '0.8rem', color: '#64748b' }}>********</td>
                                 <td>{new Date(lawyer.createdAt).toLocaleDateString('ar-EG')}</td>
                                 <td>
-                                    <button onClick={() => handleDelete(lawyer._id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                        <Trash2 size={18} />
-                                    </button>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            onClick={() => { setSelectedLawyer(lawyer); setShowPasswordModal(true); }}
+                                            style={{ color: '#0284c7', background: 'none', border: 'none', cursor: 'pointer' }}
+                                            title="تغيير كلمة المرور"
+                                        >
+                                            <Key size={18} />
+                                        </button>
+                                        <button onClick={() => handleDelete(lawyer._id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -111,6 +137,28 @@ const Lawyers = () => {
                             <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
                                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>حفظ</button>
                                 <button type="button" className="btn" onClick={() => setShowModal(false)} style={{ flex: 1, border: '1px solid #ccc' }}>إلغاء</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {showPasswordModal && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+                    <div className="card" style={{ width: '400px' }}>
+                        <h3 style={{ marginBottom: '1rem' }}>تغيير كلمة مرور {selectedLawyer?.name}</h3>
+                        <form onSubmit={handlePasswordUpdate}>
+                            <input
+                                className="input-field"
+                                placeholder="كلمة المرور الجديدة"
+                                type="password"
+                                value={newPassword}
+                                onChange={e => setNewPassword(e.target.value)}
+                                required
+                            />
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>تحديث</button>
+                                <button type="button" className="btn" onClick={() => setShowPasswordModal(false)} style={{ flex: 1, border: '1px solid #ccc' }}>إلغاء</button>
                             </div>
                         </form>
                     </div>

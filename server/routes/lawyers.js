@@ -68,4 +68,25 @@ router.delete('/:id', protect, admin, async (req, res) => {
     }
 });
 
+// @route   PUT /api/lawyers/:id/password
+// @desc    Update lawyer password
+// @access  Private (Admin only)
+router.put('/:id/password', protect, admin, async (req, res) => {
+    const { password } = req.body;
+
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (user) {
+            user.password = password;
+            await user.save();
+            res.json({ message: 'Password updated successfully' });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 module.exports = router;
