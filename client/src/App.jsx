@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Sidebar from './components/Sidebar';
 import { useAuth } from './context/AuthContext';
 import AdminDashboard from './pages/AdminDashboard';
@@ -38,6 +39,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin" element={

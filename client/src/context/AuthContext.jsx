@@ -30,13 +30,25 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const register = async (name, email, password) => {
+        try {
+            const { data } = await api.post('/auth/register', { name, email, password });
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            setUser(data);
+            return { success: true };
+        } catch (error) {
+            console.error(error);
+            return { success: false, message: error.response?.data?.message || 'Registration failed' };
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('userInfo');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, register }}>
             {children}
         </AuthContext.Provider>
     );
