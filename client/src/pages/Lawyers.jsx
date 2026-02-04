@@ -129,7 +129,7 @@ const Lawyers = () => {
                             <input
                                 className="input-field"
                                 placeholder="كلمة المرور"
-                                type="password"
+                                type="text"
                                 value={formData.password}
                                 onChange={e => setFormData({ ...formData, password: e.target.value })}
                                 required
@@ -151,7 +151,7 @@ const Lawyers = () => {
                             <input
                                 className="input-field"
                                 placeholder="كلمة المرور الجديدة"
-                                type="password"
+                                type="text"
                                 value={newPassword}
                                 onChange={e => setNewPassword(e.target.value)}
                                 required
