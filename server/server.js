@@ -16,11 +16,13 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Database Connection
+let dbError = null;
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB Connected'))
     .catch(err => {
         console.error('MongoDB Connection Error:', err);
-        process.exit(1); // Exit process with failure
+        dbError = err.message;
+        // process.exit(1); // Don't exit on Vercel, let us see the error
     });
 
 // Routes Placeholder
@@ -29,6 +31,8 @@ app.get('/', (req, res) => {
     res.status(200).json({
         message: 'LegalTech SaaS API is running',
         dbStatus: dbStatus,
+        dbError: dbError, // Show the error if any
+        envCheck: process.env.MONGO_URI ? 'MONGO_URI is set' : 'MONGO_URI is MISSING',
         timestamp: new Date().toISOString()
     });
 });
